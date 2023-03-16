@@ -2,6 +2,8 @@
 # File for handling user input and displaying current game state
 import pygame as p
 import chessEngine
+from tkinter import *
+from tkinter import messagebox
 # Define some constants
 # Initialise our pygame package
 p.init()
@@ -76,12 +78,15 @@ def drawGameState(screen, gs,validMoves,sqSelected,moveLogFont):
     drawMoveLog(screen,gs,moveLogFont)
 
 def drawEndGameText(screen,text):
-    font=p.font.SysFont("Arial",32,True,False)
-    textObject=font.render(text,0,p.Color('Black'))
-    textLocation=p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2,HEIGHT/2 - textObject.get_height()/2)
-    screen.blit(textObject,textLocation)
-    textObject=font.render(text,0,p.Color('Gray'))
-    screen.blit(textObject,textLocation.move(2,2))
+    # my_font = p.font.SysFont("Arial",32)
+    # textObject = my_font.render(text,False,p.Color('White'))
+    # textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2,HEIGHT/2 - textObject.get_height()/2)
+    # textLocation = (500, 500)
+    # screen.blit(textObject,textLocation)
+    # textObject=my_font.render(text,0,p.Color('White'))
+    # screen.blit(textObject,textLocation)
+    Tk().wm_withdraw() #to hide the main window
+    messagebox.showinfo(title='Info', message=text,)
 
 def drawMoveLog(screen,gs,font):
     moveLogRect = p.Rect(WIDTH,0,MOVE_LOG_PANEL_WIDTH,MOVE_LOG_PANEL_HEIGHT)
@@ -112,6 +117,7 @@ def drawMoveLog(screen,gs,font):
         textY+= textObject.get_height() + lineSpacing
         
 def main():
+    # p.font.init()
     screen = p.display.set_mode((WIDTH + MOVE_LOG_PANEL_WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
@@ -135,7 +141,7 @@ def main():
 
     gameOver=False
     while flag:
-        humanTurn = (gs.whiteToPlay and playerOne) or (not gs.whiteToPlay and playerTwo)
+        # humanTurn = (gs.whiteToPlay and playerOne) or (not gs.whiteToPlay and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 flag = False
@@ -157,7 +163,7 @@ def main():
                     gameOver=False
 
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver and humanTurn:
+                if not gameOver:
                     # Grab the mouse location to move the piece
                     location = p.mouse.get_pos()
                     col = location[0]//SQUARE_SIZE
@@ -186,14 +192,11 @@ def main():
                         if not moveMade:
                             player_clicks = [selected_square]
 
-        #AI Move Finder Logic
+        # #AI Move Finder Logic
 
-        if not gameOver and not humanTurn:
-            AIMove = SmartMoveFinder.findBestMoveMinMax(gs, validMoves)
-            if AIMove is None:
-                AIMove = SmartMoveFinder.findRandomMove(validMoves)
-            gs.makeMove(AIMove)
-            moveMade = True
+        # if not gameOver and not gs.whiteToPlay:
+        #     MCTS.main(gs)
+        #     AIMove = SmartMoveFinder.findBestMoveMinMax(gs, validMoves)
 
         if moveMade:
             # Generate a new set of valid moves after move is made
@@ -202,7 +205,6 @@ def main():
 
 
         drawGameState(screen, gs,validMoves,selected_square,moveLogFont)
-
         if gs.checkmate:
             gameOver=True
             if gs.whiteToPlay:
